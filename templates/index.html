@@ -10,25 +10,24 @@
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #07c160; padding-bottom: 10px; margin-bottom: 20px; }
         .header h2 { margin: 0; color: #333; }
         .logout-btn { background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-left: 10px;}
-        
-        .role-tag { background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 10px; font-size: 12px; margin-left: 5px; }
-        
+        .admin-btn { background: #3498db; color: white; text-decoration: none; padding: 6px 12px; border-radius: 5px; font-size: 14px; }
         .form-group { margin-bottom: 15px; }
         input[type="text"], input[type="number"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
         .btn-publish { width: 100%; padding: 12px; font-size: 16px; color: white; background-color: #07c160; border: none; border-radius: 5px; cursor: pointer; }
-        
         .task-item { background: #fafafa; border-left: 4px solid #07c160; padding: 15px; margin-bottom: 10px; border-radius: 4px; position: relative; }
         .task-title { font-weight: bold; font-size: 16px; color: #333; margin-bottom: 5px; }
         .task-desc { color: #666; font-size: 14px; margin-bottom: 5px; }
         .task-meta { font-size: 12px; color: #999; margin-top: 10px; }
         .task-reward { color: #e74c3c; font-weight: bold; float: right; font-size: 18px; }
-        
-        .btn-small { width: auto; padding: 6px 12px; font-size: 13px; float: right; margin-top: 5px; cursor: pointer; border: none; border-radius: 4px; color: white; margin-left: 8px; }
+        .btn-small { width: auto; padding: 6px 12px; font-size: 13px; float: right; margin-top: 5px; cursor: pointer; border: none; border-radius: 4px; color: white; }
         .btn-blue { background-color: #3498db; }
         .btn-gray { background-color: #95a5a6; cursor: not-allowed; }
-        .btn-red { background-color: #ef4444; }
         
-        .empty-state { text-align: center; padding: 20px; background: #f9fafb; border-radius: 8px; color: #6b7280; border: 1px dashed #d1d5db; }
+        /* 图片展示与上传样式 */
+        .task-image { max-width: 100px; max-height: 100px; border-radius: 4px; margin-top: 10px; cursor: pointer; border: 1px solid #ddd; }
+        .upload-area { margin-top: 10px; display: flex; gap: 10px; align-items: center; }
+        .upload-btn { background: #f39c12; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; border: none; }
+        .upload-btn:disabled { background: #ccc; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -37,24 +36,18 @@
             <h2>任务大厅</h2>
             <div>
                 <span id="currentUser" style="font-weight:bold; color:#07c160;"></span>
-                <span id="roleTag" class="role-tag" style="display:none;"></span>
+                <a href="/admin" id="adminBtn" class="admin-btn" style="display:none;">后台管理</a>
                 <button class="logout-btn" onclick="logout()">退出</button>
             </div>
         </div>
 
-        <!-- 发单表单区：除配送员外，所有人都可见 -->
-        <div id="publishSection" style="border-bottom: 2px dashed #eee; padding-bottom: 20px; margin-bottom: 20px; display: none;">
+        <div style="border-bottom: 2px dashed #eee; padding-bottom: 20px; margin-bottom: 20px;">
             <h3>发布新任务</h3>
             <div class="form-group"><input type="text" id="title" placeholder="任务标题 (例如：代取快递)"></div>
             <div class="form-group"><input type="text" id="desc" placeholder="详细要求 (例如：送到3栋楼下)"></div>
             <div class="form-group"><input type="number" id="reward" placeholder="酬劳金额 (元)"></div>
             <button class="btn-publish" onclick="submitTask()">发布任务</button>
             <div id="msg" style="text-align:center; margin-top:10px; color:#07c160;"></div>
-        </div>
-
-        <!-- 配送员提示区：仅配送员可见 -->
-        <div id="runnerTip" class="empty-state" style="display: none; margin-bottom: 20px;">
-            🚴 您当前是配送员身份，请在下方大厅中抢单。
         </div>
 
         <h3>最新任务</h3>
@@ -74,34 +67,10 @@
                 } else {
                     myName = data.username;
                     myRole = data.role;
-                    
                     document.getElementById('currentUser').innerText = '欢迎，' + myName;
-                    
-                    const roleTag = document.getElementById('roleTag');
-                    roleTag.style.display = 'inline-block';
-                    
-                    if (myRole === 'runner') {
-                        roleTag.innerText = '配送员';
-                        roleTag.style.background = '#dcfce7';
-                        roleTag.style.color = '#16a34a';
-                        document.getElementById('runnerTip').style.display = 'block';
-                    } else {
-                        // 普通用户、管理员、代理 都显示发单框
-                        document.getElementById('publishSection').style.display = 'block'; 
-                        
-                        if (myRole === 'agent') {
-                            roleTag.innerText = '代理';
-                            roleTag.style.background = '#fef08a';
-                            roleTag.style.color = '#854d0e';
-                        } else if (myRole === 'admin') {
-                            roleTag.innerText = '管理员';
-                            roleTag.style.background = '#e5e7eb';
-                            roleTag.style.color = '#374151';
-                        } else {
-                            roleTag.innerText = '普通用户';
-                        }
+                    if (myRole === 'admin') {
+                        document.getElementById('adminBtn').style.display = 'inline-block';
                     }
-                    
                     loadTasks();
                 }
             });
@@ -125,8 +94,6 @@
             })
             .then(res => res.json())
             .then(data => {
-                if(data.error) { msg.style.color = '#ef4444'; msg.innerText = data.error; return; }
-                msg.style.color = '#07c160';
                 msg.innerText = data.message;
                 document.getElementById('title').value = '';
                 document.getElementById('desc').value = '';
@@ -142,28 +109,35 @@
                 const container = document.getElementById('task-container');
                 container.innerHTML = ''; 
                 if (tasks.length === 0) {
-                    container.innerHTML = '<p style="color:#999; text-align:center;">暂无任务</p>'; return;
+                    container.innerHTML = '<p style="color:#999;">暂无任务</p>'; return;
                 }
-                
                 tasks.forEach(task => {
                     const div = document.createElement('div');
                     div.className = 'task-item';
                     let btnHtml = '';
-                    
-                    // 1. 配送员专属：接单 / 确认送达
+
+                    // 接单逻辑
                     if (task.status === '待接单') {
-                        if (myRole === 'runner') {
-                            btnHtml = `<button class="btn-small" style="background:#07c160;" onclick="takeTask(${task.id})">我要接单</button>`;
-                        } else if (task.publisher === myName) {
+                        if (task.publisher === myName) {
                             btnHtml = `<button class="btn-small btn-gray">我发布的</button>`;
+                        } else {
+                            btnHtml = `<button class="btn-small" style="background:#07c160;" onclick="takeTask(${task.id})">我要接单</button>`;
                         }
-                    } else if (task.status === '已接单' && task.taker === myName) {
-                        btnHtml = `<button class="btn-small btn-blue" onclick="completeTask(${task.id})">确认送达</button>`;
+                    } 
+                    // 完成配送逻辑（当前用户是接单人，且状态为已接单）
+                    else if (task.status === '已接单' && task.taker === myName) {
+                        btnHtml = `
+                            <div class="upload-area">
+                                <input type="file" id="file-${task.id}" accept="image/*" style="display:none;" onchange="uploadImage(${task.id})">
+                                <button class="upload-btn" onclick="document.getElementById('file-${task.id}').click()">上传送达图并完成</button>
+                            </div>
+                        `;
                     }
 
-                    // 2. 管理员专属：删除按钮 (无论什么状态都可以删)
-                    if (myRole === 'admin') {
-                        btnHtml += `<button class="btn-small btn-red" onclick="deleteTask(${task.id})">删除订单</button>`;
+                    // 渲染图片（如果存在图片，大家都能看到）
+                    let imageHtml = '';
+                    if (task.delivery_image) {
+                        imageHtml = `<div><img src="/static/uploads/${task.delivery_image}" class="task-image" onclick="window.open(this.src)"></div>`;
                     }
 
                     let statusColor = task.status === '已完成' ? '#07c160' : '#e67e22';
@@ -172,7 +146,9 @@
                         <div class="task-title">${task.title}</div>
                         <div class="task-desc">${task.desc || '无详细说明'}</div>
                         <div class="task-meta">发单人：${task.publisher} | 状态：<span style="color:${statusColor}">${task.status}</span> ${task.taker ? ' | 接单人：'+task.taker : ''}</div>
-                        ${btnHtml}<div style="clear:both;"></div>
+                        ${imageHtml}
+                        ${btnHtml}
+                        <div style="clear:both;"></div>
                     `;
                     container.appendChild(div);
                 });
@@ -185,32 +161,58 @@
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ task_id: taskId })
             }).then(res => res.json()).then(data => {
-                if(data.error) alert(data.error);
-                else alert(data.message);
-                loadTasks();
-            });
-        }
-
-        function completeTask(taskId) {
-            if(!confirm('确认送达？')) return;
-            fetch('/api/complete_task', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ task_id: taskId })
-            }).then(res => res.json()).then(data => {
                 alert(data.message); loadTasks();
             });
         }
 
-        // 管理员专属删除功能
-        function deleteTask(taskId) {
-            if(!confirm('⚠️ 确定要彻底删除这个订单吗？此操作不可恢复。')) return;
-            fetch('/api/delete_task', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ task_id: taskId })
-            }).then(res => res.json()).then(data => {
-                if(data.error) alert(data.error);
-                else alert(data.message);
-                loadTasks();
+        // 上传图片逻辑
+        function uploadImage(taskId) {
+            const fileInput = document.getElementById(`file-${taskId}`);
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            // 前端校验图片大小（限制 5MB）
+            if (file.size > 5 * 1024 * 1024) {
+                alert("图片太大了，请上传小于5MB的图片！");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('task_id', taskId);
+
+            // 禁用按钮防止重复点击
+            fileInput.disabled = true;
+
+            // 1. 上传图片
+            fetch('/api/upload_image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    fileInput.disabled = false;
+                } else {
+                    // 2. 上传成功后，调用完成订单接口
+                    return fetch('/api/complete_task', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ task_id: taskId })
+                    });
+                }
+            })
+            .then(res => res && res.json())
+            .then(data => {
+                if (data && data.message) {
+                    alert('配送完成，图片已上传！');
+                    loadTasks();
+                }
+            })
+            .catch(err => {
+                alert('网络错误，上传失败！');
+                fileInput.disabled = false;
             });
         }
     </script>
