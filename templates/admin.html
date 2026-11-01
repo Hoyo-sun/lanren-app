@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员后台</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f5f7; padding: 20px; }
+        .container { background: white; max-width: 500px; margin: 0 auto; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h2 { color: #333; border-bottom: 2px solid #e74c3c; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-top: 5px; }
+        button { width: 100%; padding: 12px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px;}
+        #msg { text-align: center; color: green; margin-top: 15px; }
+        a { display: block; text-align: center; margin-top: 20px; color: #3498db; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>管理员后台 - 创建员工</h2>
+        <div class="form-group">
+            <label>员工账号</label>
+            <input type="text" id="username" placeholder="给员工设置一个用户名">
+        </div>
+        <div class="form-group">
+            <label>员工密码</label>
+            <input type="password" id="password" placeholder="设置初始密码">
+        </div>
+        <div class="form-group">
+            <label>员工角色</label>
+            <select id="role">
+                <option value="agent">代理</option>
+                <option value="runner">跑腿员</option>
+            </select>
+        </div>
+        <button onclick="createStaff()">创建账号</button>
+        <div id="msg"></div>
+        <a href="/">返回任务大厅</a>
+    </div>
+
+    <script>
+        function createStaff() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            const msg = document.getElementById('msg');
+
+            if(!username || !password) {
+                msg.style.color = 'red'; msg.innerText = '账号和密码不能为空！'; return;
+            }
+
+            fetch('/api/admin/create_staff', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, password: password, role: role })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.error) {
+                    msg.style.color = 'red'; msg.innerText = data.error;
+                } else {
+                    msg.style.color = 'green'; msg.innerText = data.message;
+                    document.getElementById('username').value = '';
+                    document.getElementById('password').value = '';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>懒人联盟 - 欢迎</title>
+    <style>
+        /* 全局字体与重置 */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+        
+        /* 纯白背景与居中布局 */
+        body { background-color: #fcfcfc; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: #1f2937; overflow-x: hidden; }
+
+        /* 顶部欢迎区 */
+        .welcome-header { text-align: center; margin-top: 10vh; margin-bottom: 5vh; animation: fadeInDown 0.8s ease-out; }
+        .welcome-header h1 { font-size: 2.5rem; font-weight: 600; color: #111827; letter-spacing: 1px; }
+        .welcome-header p { color: #6b7280; margin-top: 10px; font-size: 1.1rem; }
+
+        /* 核心主体：左右分栏 */
+        .main-container { display: flex; justify-content: center; gap: 40px; width: 100%; max-width: 1000px; padding: 20px; align-items: flex-start; }
+
+        /* 左侧：管理员平台 (初始为锁定/隐藏状态，登录管理员后显示) */
+        .admin-panel { background: #ffffff; border-radius: 16px; padding: 30px; width: 50%; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); border: 1px solid #f3f4f6; display: none; animation: fadeInLeft 0.6s ease-out; }
+        .admin-panel h2 { font-size: 1.5rem; margin-bottom: 20px; color: #111827; display: flex; align-items: center; }
+        .admin-panel h2::before { content: ''; display: inline-block; width: 4px; height: 20px; background: #07c160; margin-right: 10px; border-radius: 2px; }
+        
+        /* 员工列表表格 */
+        .staff-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px; }
+        .staff-table th { text-align: left; padding: 10px; color: #6b7280; font-weight: 500; border-bottom: 1px solid #e5e7eb; }
+        .staff-table td { padding: 12px 10px; border-bottom: 1px solid #f3f4f6; color: #374151; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .tag-agent { background: #e0f2fe; color: #0284c7; }
+        .tag-runner { background: #dcfce7; color: #16a34a; }
+
+        /* 管理员表单 */
+        .admin-form input, .admin-form select { width: 100%; padding: 10px 14px; margin-bottom: 12px; border: 1px solid #d1d5db; border-radius: 8px; outline: none; transition: 0.2s; font-size: 14px; }
+        .admin-form input:focus, .admin-form select:focus { border-color: #07c160; box-shadow: 0 0 0 3px rgba(7, 193, 96, 0.1); }
+        .btn-primary { width: 100%; padding: 12px; background: #07c160; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-primary:hover { background: #06ad56; }
+
+        /* 右侧：弹窗 (悬浮卡片感) */
+        .login-modal-container { width: 40%; perspective: 1000px; }
+        .login-modal { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border-radius: 20px; padding: 40px 30px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); border: 1px solid #fff; animation: fadeInRight 0.6s ease-out; position: relative; }
+        
+        .login-modal h2 { font-size: 1.8rem; text-align: center; color: #111827; margin-bottom: 30px; }
+        
+        /* 表单样式 */
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; color: #4b5563; margin-bottom: 8px; font-weight: 500; }
+        .form-group input { width: 100%; padding: 14px 16px; border: 1px solid #e5e7eb; background: #f9fafb; border-radius: 10px; font-size: 15px; transition: all 0.3s; outline: none; }
+        .form-group input:focus { background: #fff; border-color: #07c160; box-shadow: 0 0 0 4px rgba(7, 193, 96, 0.1); }
+        
+        /* 弹窗底部切换 */
+        .modal-footer { text-align: right; margin-top: 15px; }
+        .modal-footer a { color: #3b82f6; font-size: 14px; text-decoration: none; cursor: pointer; transition: color 0.2s; }
+        .modal-footer a:hover { color: #2563eb; text-decoration: underline; }
+
+        #msg { text-align: center; font-size: 14px; margin-top: 15px; min-height: 20px; font-weight: 500; }
+
+        /* 动画 */
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; align-items: center; }
+            .admin-panel, .login-modal-container { width: 100%; }
+            .welcome-header h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 欢迎界面 -->
+    <div class="welcome-header">
+        <h1>懒人联盟系统</h1>
+        <p>让校园生活更便捷</p>
+    </div>
+
+    <div class="main-container">
+        
+        <!-- 左侧：管理员平台 (默认隐藏，登录管理员后通过 JS 显示) -->
+        <div class="admin-panel" id="adminPanel">
+            <h2>管理员控制台</h2>
+            
+            <div style="max-height: 250px; overflow-y: auto; margin-bottom: 20px;">
+                <table class="staff-table">
+                    <thead>
+                        <tr>
+                            <th>昵称 / 账号</th>
+                            <th>身份</th>
+                            <th>附加信息</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staffList">
+                        <!-- 数据由 JS 动态渲染 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 style="font-size: 16px; margin-bottom: 15px; color: #374151;">注册新员工</h3>
+            <div class="admin-form">
+                <input type="text" id="staffName" placeholder="昵称 (例: 张三)">
+                <input type="text" id="staffUser" placeholder="登录账号 (例: agent01)">
+                <input type="password" id="staffPass" placeholder="登录密码">
+                <select id="staffRole" onchange="toggleCompanyField()">
+                    <option value="runner">配送员 (跑腿接单)</option>
+                    <option value="agent">代理 (网点负责人)</option>
+                </select>
+                <input type="text" id="staffCompany" placeholder="代理单位名称 (例: 东区菜鸟驿站)" style="display:none;">
+                <button class="btn-primary" onclick="createStaff()">创建账号</button>
+                <div id="adminMsg" style="text-align:center; font-size:13px; color:#07c160; margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <!-- 右侧：登录/注册弹窗 -->
+        <div class="login-modal-container">
+            <div class="login-modal">
+                <h2 id="modalTitle">请登录账号</h2>
+                
+                <div class="form-group">
+                    <label>账号</label>
+                    <input type="text" id="username" placeholder="请输入账号">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="password" placeholder="请输入密码">
+                </div>
+                
+                <!-- 仅注册时显示的昵称字段 -->
+                <div class="form-group" id="nicknameGroup" style="display: none;">
+                    <label>昵称</label>
+                    <input type="text" id="nickname" placeholder="给自己起个好听的昵称">
+                </div>
+
+                <button class="btn-primary" id="submitBtn" onclick="submitAuth()">登 录</button>
+                <div id="msg"></div>
+
+                <div class="modal-footer">
+                    <a id="switchBtn" onclick="switchMode()">我没有账号，去注册</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let mode = 'login';
+
+        function switchMode() {
+            const title = document.getElementById('modalTitle');
+            const submitBtn = document.getElementById('submitBtn');
+            const switchBtn = document.getElementById('switchBtn');
+            const nicknameGroup = document.getElementById('nicknameGroup');
+            document.getElementById('msg').innerText = '';
+
+            if (mode === 'login') {
+                mode = 'register';
+                title.innerText = '注册新账号';
+                submitBtn.innerText = '注 册';
+                switchBtn.innerText = '已有账号？返回登录';
+                nicknameGroup.style.display = 'block';
+            } else {
+                mode = 'login';
+                title.innerText = '请登录账号';
+                submitBtn.innerText = '登 录';
+                switchBtn.innerText = '我没有账号，去注册';
+                nicknameGroup.style.display = 'none';
+            }
+        }
+
+        function submitAuth() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const nickname = document.getElementById('nickname').value.trim();
+            const msg = document.getElementById('msg');
+
+            if (!username || !password) { msg.style.color = '#ef4444'; msg.innerText = '账号和密码不能为空！'; return; }
+            if (mode === 'register' && !nickname) { msg.style.color = '#ef4444'; msg.innerText = '请填写昵称！'; return; }
+
+            const url = mode === 'login' ? '/api/login' : '/api/register';
+            const payload = mode === 'login' ? { username, password } : { username, password, nickname };
+
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    msg.style.color = '#ef4444';
+                    msg.innerText = data.error;
+                } else {
+                    msg.style.color = '#07c160';
+                    msg.innerText = data.message;
+                    
+                    if (mode === 'login') {
+                        if (data.role === 'admin') {
+                            // 管理员登录：解锁左侧面板并拉取数据
+                            document.getElementById('adminPanel').style.display = 'block';
+                            msg.innerText = '管理员登录成功，控制台已解锁';
+                            loadStaffData();
+                        } else {
+                            // 普通用户或员工：直接跳转任务大厅
+                            setTimeout(() => window.location.href = '/', 500);
+                        }
+                    } else {
+                        setTimeout(() => switchMode(), 1500);
+                    }
+                }
+            });
+        }
+
+        // 管理员逻辑
+        function toggleCompanyField() {
+            const role = document.getElementById('staffRole').value;
+            document.getElementById('staffCompany').style.display = role === 'agent' ? 'block' : 'none';
+        }
+
+        function loadStaffData() {
+            fetch('/api/admin/staff_list')
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById('staffList');
+                tbody.innerHTML = '';
+                if(data.error) return;
+                
+                data.forEach(u => {
+                    let extraInfo = '';
+                    if (u.role === 'agent') {
+                        extraInfo = `单位: ${u.company || '未设置'}`;
+                    } else {
+                        extraInfo = `接单: ${u.orderCount} | 注册: ${u.days}天`;
+                    }
+                    
+                    const tagClass = u.role === 'agent' ? 'tag-agent' : 'tag-runner';
+                    const roleName = u.role === 'agent' ? '代理' : '配送员';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${u.nickname}</strong><br><span style="font-size:12px;color:#9ca3af;">${u.username}</span></td>
+                            <td><span class="tag ${tagClass}">${roleName}</span></td>
+                            <td style="font-size:13px;color:#6b7280;">${extraInfo}</td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+        function createStaff() {
+            const nickname = document.getElementById('staffName').value;
+            const username = document.getElementById('staffUser').value;
+            const password = document.getElementById('staffPass').value;
+            const role = document.getElementById('staffRole').value;
+            const company = document.getElementById('staffCompany').value;
+            const msg = document.getElementById('adminMsg');
+
+            if(!username || !password || !nickname) { msg.style.color = '#ef4444'; msg.innerText = '必填项不能为空'; return; }
+
+            fetch('/api/admin/create_staff', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, nickname, role, company })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.error) {
+                    msg.style.color = '#ef4444'; msg.innerText = data.error;
+                } else {
+                    msg.style.color = '#07c160'; msg.innerText = data.message;
+                    document.getElementById('staffName').value = '';
+                    document.getElementById('staffUser').value = '';
+                    document.getElementById('staffPass').value = '';
+                    document.getElementById('staffCompany').value = '';
+                    loadStaffData();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

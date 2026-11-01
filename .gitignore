@@ -1,0 +1,4 @@
+paotui.db
+__pycache__/
+.env
+.vscode/
